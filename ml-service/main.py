@@ -1,9 +1,7 @@
 import io
 import logging
 import os
-import re
 
-import imagehash
 import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, UploadFile
@@ -30,7 +28,6 @@ def failure_response() -> dict:
         "match_score": 0.0,
         "passed": False,
         "caption": "",
-        "perceptual_hash": "",
         "debug": {},
     }
 
@@ -96,33 +93,6 @@ def check_authenticity(image_bytes: bytes) -> dict:
     }
 
 
-def normalize_text(value: str) -> str:
-    return re.sub(r"[^a-z0-9 ]+", " ", value.lower()).strip()
-
-
-def score_label_match(prompt: str, label_description: str, vision_score: float) -> float:
-    prompt_norm = normalize_text(prompt)
-    label_norm = normalize_text(label_description)
-    prompt_tokens = {token for token in prompt_norm.split() if token}
-    label_tokens = {token for token in label_norm.split() if token}
-
-    if not prompt_tokens or not label_tokens:
-        return 0.0
-
-    if prompt_norm == label_norm:
-        return vision_score
-
-    if prompt_norm in label_norm or label_norm in prompt_norm:
-        return min(1.0, vision_score * 0.95)
-
-    overlap = len(prompt_tokens & label_tokens)
-    if overlap == 0:
-        return 0.0
-
-    overlap_ratio = overlap / len(prompt_tokens)
-    return round(min(1.0, vision_score * overlap_ratio * 0.9), 4)
-
-
 def check_match(image_bytes: bytes, prompt: str) -> float:
     try:
         from google.cloud import vision
@@ -143,14 +113,20 @@ def check_match(image_bytes: bytes, prompt: str) -> float:
         check_match.last_debug = []
         return 0.0
 
+    prompt_tokens = {token for token in prompt.lower().split() if token}
     scored_labels = []
     best_score = 0.0
+
     for label in labels:
+        description = label.description or ""
         label_score = round(float(label.score), 4)
-        match_score = score_label_match(prompt, label.description, label_score)
+        label_tokens = {token for token in description.lower().split() if token}
+        overlap = len(prompt_tokens & label_tokens)
+        match_score = label_score if overlap > 0 else 0.0
+
         scored_labels.append(
             {
-                "label": label.description,
+                "label": description,
                 "vision_score": label_score,
                 "match_score": round(match_score, 4),
             }
@@ -191,14 +167,6 @@ def generate_caption(image_bytes: bytes) -> str:
     return f"photo of {primary_labels[0]}, {primary_labels[1]}, and {primary_labels[2]}"
 
 
-def compute_perceptual_hash(image_bytes: bytes) -> str:
-    try:
-        with Image.open(io.BytesIO(image_bytes)) as image:
-            return str(imagehash.phash(image.convert("RGB")))
-    except (UnidentifiedImageError, OSError, ValueError) as exc:
-        raise ValueError("Unable to compute perceptual hash for uploaded image.") from exc
-
-
 @app.get("/")
 def healthcheck() -> dict:
     return {"status": "ok", "service": "ml-service"}
@@ -220,7 +188,6 @@ async def verify(
     authenticity = {"authentic": False, "authenticity_score": 0.0}
     match_score = 0.0
     caption = ""
-    perceptual_hash = ""
     debug = {
         "match_provider": "google-cloud-vision",
         "caption_provider": "google-cloud-vision",
@@ -229,7 +196,6 @@ async def verify(
         "match_error": "",
         "match_results": [],
         "caption_error": "",
-        "perceptual_hash_error": "",
     }
 
     try:
@@ -256,12 +222,6 @@ async def verify(
         debug["caption_error"] = str(exc)
         logger.exception("Caption generation failed: %s", exc)
 
-    try:
-        perceptual_hash = compute_perceptual_hash(image_bytes)
-    except Exception as exc:
-        debug["perceptual_hash_error"] = str(exc)
-        logger.exception("Perceptual hash generation failed: %s", exc)
-
     passed = authenticity["authentic"] and (match_score >= MATCH_THRESHOLD)
 
     return {
@@ -270,6 +230,5 @@ async def verify(
         "match_score": match_score,
         "passed": passed,
         "caption": caption,
-        "perceptual_hash": perceptual_hash,
         "debug": debug,
     }
