@@ -28,7 +28,6 @@ def failure_response() -> dict:
         "match_score": 0.0,
         "passed": False,
         "caption": "",
-        "debug": {},
     }
 
 
@@ -188,28 +187,15 @@ async def verify(
     authenticity = {"authentic": False, "authenticity_score": 0.0}
     match_score = 0.0
     caption = ""
-    debug = {
-        "match_provider": "google-cloud-vision",
-        "caption_provider": "google-cloud-vision",
-        "google_vision_max_results": GOOGLE_VISION_MAX_RESULTS,
-        "authenticity_error": "",
-        "match_error": "",
-        "match_results": [],
-        "caption_error": "",
-    }
 
     try:
         authenticity = check_authenticity(image_bytes)
     except Exception as exc:
-        debug["authenticity_error"] = str(exc)
         logger.exception("Authenticity check failed: %s", exc)
 
     try:
         match_score = check_match(image_bytes, cleaned_prompt)
-        debug["match_results"] = check_match.last_debug
     except Exception as exc:
-        debug["match_error"] = str(exc)
-        debug["match_results"] = check_match.last_debug
         logger.exception(
             "Match check failed for prompt '%s' using Google Cloud Vision: %s",
             cleaned_prompt,
@@ -219,7 +205,6 @@ async def verify(
     try:
         caption = generate_caption(image_bytes)
     except Exception as exc:
-        debug["caption_error"] = str(exc)
         logger.exception("Caption generation failed: %s", exc)
 
     passed = authenticity["authentic"] and (match_score >= MATCH_THRESHOLD)
@@ -230,5 +215,4 @@ async def verify(
         "match_score": match_score,
         "passed": passed,
         "caption": caption,
-        "debug": debug,
     }
