@@ -1,0 +1,41 @@
+const express = require("express");
+const router = express.Router();
+const db = require("../database");
+
+router.get("/", async (req, res) => {
+    try {
+        const bounties = db.prepare("SELECT * FROM bounties WHERE status = 'open'").all();
+        res.json(bounties);
+    } catch (err) {
+        console.error("Get bounties error:", err.message);
+        res.status(500).json({error: "Server error"});
+    }
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const bounties = db.prepare("SELECT * FROM bounties WHERE id = ?").get(id);
+        if (!bounties) {
+            return res.status(404).json({ error: "Bounty not found"});
+        }
+        res.json(bounties);
+    } catch (err) {
+        console.error("Get bounty error:", err.message);
+        res.status(500).json({error: "Server error"});
+    }
+});
+
+router.post("/create", async (req, res) => {
+    try {
+        const { prompt, category, payout_amount, total_slots } = req.body;
+        const result = db.prepare(`INSERT INTO bounties (prompt, category, payout_amount, total_slots) VALUES (?, ?, ?, ?)`).run(prompt, category, payout_amount, total_slots);
+        console.log(result.lastInsertRowid);
+        res.json({id: result.lastInsertRowid, message: "Bounty created"});
+    } catch (err) {
+        console.error("Get bounty error:", err.message);
+        res.status(500).json({error: "Server error"});
+    }
+});
+
+module.exports = router;
