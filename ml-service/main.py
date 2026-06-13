@@ -7,15 +7,17 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, UploadFile
 from PIL import Image, UnidentifiedImageError
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI()
 logger = logging.getLogger("ml-service")
+logging.basicConfig(level=logging.INFO)
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 MATCH_THRESHOLD = float(os.getenv("MATCH_THRESHOLD", "0.65"))
 AI_GENERATED_THRESHOLD = float(os.getenv("AI_GENERATED_THRESHOLD", "0.5"))
 SIGHTENGINE_API_URL = "https://api.sightengine.com/1.0/check.json"
+GOOGLE_VISION_MAX_RESULTS = int(os.getenv("GOOGLE_VISION_MAX_RESULTS", "10"))
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jfif"}
 
 
@@ -91,16 +93,77 @@ def check_authenticity(image_bytes: bytes) -> dict:
 
 
 def check_match(image_bytes: bytes, prompt: str) -> float:
-    # Temporary Phase 2 placeholder. We'll replace this with hosted CLIP next.
-    _ = image_bytes
-    _ = prompt
-    return 0.83
+    try:
+        from google.cloud import vision
+    except ImportError as exc:
+        raise RuntimeError(
+            "google-cloud-vision is not installed. Install it in the ml-service venv first."
+        ) from exc
+
+    client = vision.ImageAnnotatorClient()
+    image = vision.Image(content=image_bytes)
+    response = client.label_detection(image=image, max_results=GOOGLE_VISION_MAX_RESULTS)
+
+    if response.error.message:
+        raise RuntimeError(response.error.message)
+
+    labels = response.label_annotations
+    if not labels:
+        check_match.last_debug = []
+        return 0.0
+
+    prompt_tokens = {token for token in prompt.lower().split() if token}
+    scored_labels = []
+    best_score = 0.0
+
+    for label in labels:
+        description = label.description or ""
+        label_score = round(float(label.score), 4)
+        label_tokens = {token for token in description.lower().split() if token}
+        overlap = len(prompt_tokens & label_tokens)
+        match_score = label_score if overlap > 0 else 0.0
+
+        scored_labels.append(
+            {
+                "label": description,
+                "vision_score": label_score,
+                "match_score": round(match_score, 4),
+            }
+        )
+        best_score = max(best_score, match_score)
+
+    check_match.last_debug = scored_labels
+    return round(best_score, 4)
+
+
+check_match.last_debug = []
 
 
 def generate_caption(image_bytes: bytes) -> str:
-    # Temporary Phase 2 placeholder. We'll replace this with hosted captioning next.
-    _ = image_bytes
-    return "caption pending real caption model"
+    try:
+        from google.cloud import vision
+    except ImportError as exc:
+        raise RuntimeError(
+            "google-cloud-vision is not installed. Install it in the ml-service venv first."
+        ) from exc
+
+    client = vision.ImageAnnotatorClient()
+    image = vision.Image(content=image_bytes)
+    response = client.label_detection(image=image, max_results=5)
+
+    if response.error.message:
+        raise RuntimeError(response.error.message)
+
+    labels = [label.description.lower() for label in response.label_annotations if label.description]
+    if not labels:
+        return ""
+
+    primary_labels = labels[:3]
+    if len(primary_labels) == 1:
+        return f"photo of {primary_labels[0]}"
+    if len(primary_labels) == 2:
+        return f"photo of {primary_labels[0]} and {primary_labels[1]}"
+    return f"photo of {primary_labels[0]}, {primary_labels[1]}, and {primary_labels[2]}"
 
 
 @app.get("/")
@@ -117,19 +180,39 @@ async def verify(
         cleaned_prompt = validate_prompt(prompt)
         image_bytes = await image.read()
         validate_image_bytes(image_bytes, image.content_type)
-
-        authenticity = check_authenticity(image_bytes)
-        match_score = check_match(image_bytes, cleaned_prompt)
-        caption = generate_caption(image_bytes)
-        passed = authenticity["authentic"] and (match_score >= MATCH_THRESHOLD)
-
-        return {
-            "authentic": authenticity["authentic"],
-            "authenticity_score": authenticity["authenticity_score"],
-            "match_score": match_score,
-            "passed": passed,
-            "caption": caption,
-        }
     except Exception as exc:
-        logger.exception("Verification failed: %s", exc)
+        logger.exception("Input validation failed: %s", exc)
         return failure_response()
+
+    authenticity = {"authentic": False, "authenticity_score": 0.0}
+    match_score = 0.0
+    caption = ""
+
+    try:
+        authenticity = check_authenticity(image_bytes)
+    except Exception as exc:
+        logger.exception("Authenticity check failed: %s", exc)
+
+    try:
+        match_score = check_match(image_bytes, cleaned_prompt)
+    except Exception as exc:
+        logger.exception(
+            "Match check failed for prompt '%s' using Google Cloud Vision: %s",
+            cleaned_prompt,
+            exc,
+        )
+
+    try:
+        caption = generate_caption(image_bytes)
+    except Exception as exc:
+        logger.exception("Caption generation failed: %s", exc)
+
+    passed = authenticity["authentic"] and (match_score >= MATCH_THRESHOLD)
+
+    return {
+        "authentic": authenticity["authentic"],
+        "authenticity_score": authenticity["authenticity_score"],
+        "match_score": match_score,
+        "passed": passed,
+        "caption": caption,
+    }
