@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { client } = require("./hedera");
+const { client } = require("../hedera");
 
 console.log("Hedera client created successfully");
 console.log("Network:", client._network);

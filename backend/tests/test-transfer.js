@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { TransferTransaction, Hbar } = require("@hashgraph/sdk");
-const { client, operatorId, operatorKey } = require("./hedera");
+const { client, operatorId, operatorKey } = require("../hedera");
 
 async function testTransfer() {
   // replace with your second testnet account ID

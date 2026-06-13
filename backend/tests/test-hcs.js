@@ -3,7 +3,7 @@ const {
   TopicCreateTransaction,
   TopicMessageSubmitTransaction
 } = require("@hashgraph/sdk");
-const { client, operatorKey } = require("./hedera");
+const { client, operatorKey } = require("../hedera");
 
 async function testHCS() {
   // step 1: create a topic

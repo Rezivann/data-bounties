@@ -8,7 +8,7 @@ const {
   NftId,
   TokenId
 } = require("@hashgraph/sdk");
-const { client, operatorId, operatorKey } = require("./hedera");
+const { client, operatorId, operatorKey } = require("../hedera");
 
 async function testNFT() {
 
