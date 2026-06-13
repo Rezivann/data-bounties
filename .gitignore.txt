@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# env / secrets — NEVER commit these
+.env
+**/.env
+*.pem
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# builds
+dist/
+build/
+frontend/dist/
+
+# misc
+.DS_Store
+*.log
