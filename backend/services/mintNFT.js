@@ -1,13 +1,7 @@
 require("dotenv").config();
 const {
-  TokenCreateTransaction,
   TokenMintTransaction,
-  TokenType,
-  TokenSupplyType,
-  TransferTransaction,
-  NftId,
-  TokenId,
-  AccountId
+  TransferTransaction
 } = require("@hashgraph/sdk");
 const { client, operatorId, operatorKey } = require("../hedera");
 
@@ -28,9 +22,9 @@ async function mintCertificateNFT(toAccountId, metadataPointer) {
 
 
         const transferTX = await new TransferTransaction()
-            .addNftTransfer(TOKEN_ID, serialNumber, operatorId, toAccountId)
+            .addNftTransfer(TOKEN_ID, parseInt(serialNumber), operatorId, toAccountId)
             .freezeWith(client)
-            .sign(operatorKey)
+            .sign(operatorKey);
 
         const transferResponse = await transferTX.execute(client);
         await transferResponse.getReceipt(client);
