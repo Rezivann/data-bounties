@@ -1,3 +1,7 @@
+console.log("DB_PATH:", process.env.DB_PATH);
+console.log("RAILWAY_VOLUME_MOUNT_PATH:", process.env.RAILWAY_VOLUME_MOUNT_PATH);
+
+
 const sqlite3 = require('better-sqlite3');
 const path = require("path")
 const dbPath = process.env.DB_PATH || path.join(__dirname, "databounties.db");
