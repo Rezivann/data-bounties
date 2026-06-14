@@ -26,6 +26,16 @@ router.post("/", (req, res) => {
   }
 });
 
+router.get("/", (req, res) => {
+  try {
+    const bounties = db.prepare("SELECT * FROM bounties ORDER BY id DESC").all();
+    res.json(bounties);
+  } catch (err) {
+    console.error("Get bounties error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
     try {
         const { id } = req.params;
