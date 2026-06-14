@@ -17,6 +17,7 @@ function App() {
   }
   return (
     <div>
+      <title>Data Bounties</title>
       <Header tab={tab} onTabChange={handleTabChange} />
 
       {tab === 'bounties' && !selectedBounty && (
