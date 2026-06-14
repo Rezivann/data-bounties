@@ -11,7 +11,12 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.30.0",
+    "@solana-program/memo": "^0.11.1",
+    "@solana-program/system": "^0.12.2",
+    "@solana-program/token": "^0.13.0",
     "@solana/kit": "^6.9.0",
+    "@solana/wallet-standard-features": "^1.3.0",
+    "bs58": "^6.0.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
