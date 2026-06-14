@@ -5,10 +5,13 @@ const fs = require("fs");
 const sqlite3 = require('better-sqlite3');
 const path = require("path")
 const dbPath = process.env.DB_PATH || path.join(__dirname, "databounties.db");
-const db = new sqlite3(dbPath);
+const dbDir = path.dirname(dbPath)
+
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
+
+const db = new sqlite3(dbPath);
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS bounties (
