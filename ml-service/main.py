@@ -9,9 +9,19 @@ from PIL import Image, UnidentifiedImageError
 
 load_dotenv(override=True)
 
+import base64
+
+if os.getenv("GOOGLE_CREDENTIALS_BASE64"):
+    creds_path = "/tmp/google-credentials.json"
+    with open(creds_path, "wb") as f:
+        f.write(base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"]))
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
+
 app = FastAPI()
 logger = logging.getLogger("ml-service")
 logging.basicConfig(level=logging.INFO)
+
+
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 MATCH_THRESHOLD = float(os.getenv("MATCH_THRESHOLD", "0.65"))
