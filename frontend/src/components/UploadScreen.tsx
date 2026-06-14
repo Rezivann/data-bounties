@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useWallets } from '@privy-io/react-auth'
 import type { Bounty } from './BountyBoard'
 import './UploadScreen.css'
 
@@ -13,7 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
 export function UploadScreen({ bounty, onBack }: UploadScreenProps) {
-  const { user } = usePrivy()
+  
   const { wallets } = useWallets()
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)

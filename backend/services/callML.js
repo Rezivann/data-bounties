@@ -7,7 +7,7 @@ async function callMLService(imageBuffer, prompt) {
         form.append("image", imageBuffer, {filename: "image.jpg"});
         form.append("prompt", prompt);
 
-        const response = await fetch("http://localhost:5000/verify", 
+        const response = await fetch(`${process.env.ML_SERVICE_URL}/verify`, 
             {
                 method: "POST",
                 body: form,
