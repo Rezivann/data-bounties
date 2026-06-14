@@ -35,15 +35,17 @@ export function BountyBoard({ onSelectBounty }: BountyBoardProps) {
       })
   }, [])
 
+  const openBounties = bounties.filter(bounty => bounty.status === 'open')
+
   if (loading) return <div className="board-status">Loading bounties...</div>
   if (error) return <div className="board-status board-error">Couldn't reach the backend. Is it running?</div>
-  if (bounties.length === 0) return <div className="board-status">No open bounties yet.</div>
+  if (openBounties.length === 0) return <div className="board-status">No open bounties yet.</div>
 
   return (
     <div className="board">
       <h1 className="board-title">Open bounties</h1>
       <div className="board-grid">
-        {bounties.map(bounty => {
+        {openBounties.map(bounty => {
           const progress = (bounty.slots_filled / bounty.total_slots) * 100
           return (
             <div key={bounty.id} className="bounty-card">
