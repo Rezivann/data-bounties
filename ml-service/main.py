@@ -18,7 +18,7 @@ MATCH_THRESHOLD = float(os.getenv("MATCH_THRESHOLD", "0.65"))
 AI_GENERATED_THRESHOLD = float(os.getenv("AI_GENERATED_THRESHOLD", "0.5"))
 SIGHTENGINE_API_URL = "https://api.sightengine.com/1.0/check.json"
 GOOGLE_VISION_MAX_RESULTS = int(os.getenv("GOOGLE_VISION_MAX_RESULTS", "10"))
-ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jfif"}
+ALLOWED_CONTENT_TYPES = {"image/jpg", "image/jpeg", "image/png", "image/webp", "image/jfif"}
 
 
 def failure_response() -> dict:

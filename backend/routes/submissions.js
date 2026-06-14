@@ -5,6 +5,17 @@ const db = require("../database");
 const { callMLService } = require("../services/callML");
 const { processVerdict } = require("../services/processVerdict");
 const { cryptoHash, perceptualHash, isTooSimilar } = require("../services/imageHash");
+const { getOrCreateHederaAccount } = require('../services/hederaAccount');
+
+const fs = require("fs");
+const path = require("path")
+
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, "../uploads");
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, {recursive: true});
+}
+
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -38,7 +49,10 @@ router.post("/submit", upload.single("image"), async (req, res) => {
         }
         const verdict = await callMLService(imageBuffer, bounty.prompt);
         if (verdict.passed) {
-            const { tokenId, serialNumber} = await processVerdict(bountyId, wallet_address, verdict.caption, imageHash, currentPerceptualHash, bounty.category, verdict.match_score); 
+            fs.writeFileSync(path.join(UPLOAD_DIR, `${imageHash}.jpg`), imageBuffer); 
+            const hederaAccountId = await getOrCreateHederaAccount(wallet_address);
+            const { tokenId, serialNumber} = await processVerdict(bountyId, wallet_address, hederaAccountId, verdict.caption, imageHash, currentPerceptualHash, bounty.category, verdict.match_score);
+            
             return res.json({
                 success: true,
                 caption: verdict.caption,
@@ -52,6 +66,7 @@ router.post("/submit", upload.single("image"), async (req, res) => {
                 reason: !verdict.authentic ? "Appears AI generated" : "Does not match with bounty prompt"
             });
         }
+
         
 
 

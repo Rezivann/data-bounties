@@ -1,0 +1,74 @@
+.portfolio {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.portfolio-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #4c1d95;
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-status {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #6b21a8;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
+
+.balance-label {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.balance-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.token-card {
+  background: #ffffff;
+  border: 1px solid #e9d5ff;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.token-badge {
+  background: #f3e8ff;
+  color: #6b21a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.token-pointer {
+  font-size: 0.75rem;
+  color: #999;
+  font-family: monospace;
+  margin: 0;
+  word-break: break-all;
+}

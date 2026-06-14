@@ -1,0 +1,104 @@
+.cert-card {
+  background: #ffffff;
+  border: 1px solid #e9d5ff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cert-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15);
+}
+.cert-image-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.cert-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+}
+
+.cert-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(124, 58, 237, 0.15),
+    rgba(124, 58, 237, 0.15) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.cert-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+}
+
+
+.cert-seal {
+  position: absolute;
+  top: 10px;
+  right: -30px;
+  z-index: 3;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 2.25rem;
+  transform: rotate(45deg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.cert-info {
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cert-serial {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4c1d95;
+}
+
+.cert-category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b21a8;
+  background: #f3e8ff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  width: fit-content;
+  text-transform: capitalize;
+}
+
+.cert-caption {
+  font-size: 0.8rem;
+  color: #6b6b6b;
+  margin: 0;
+  font-style: italic;
+}
+
+cert-token-id {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #7c3aed;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.02em;
+}

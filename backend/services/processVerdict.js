@@ -4,7 +4,7 @@ const { sendPayout } = require('./sendPayout')
 
 const db = require("../database")
 
-async function processVerdict(bountyId, wallet_address, caption, image_hash, perceptual_hash, category, confidence_score) {
+async function processVerdict(bountyId, wallet_address, hederaAccountID, caption, image_hash, perceptual_hash, category, confidence_score) {
     try {
         const bounty = db.prepare(`SELECT * FROM bounties WHERE id = ?`).get(bountyId);
         if (!bounty) {
@@ -13,12 +13,13 @@ async function processVerdict(bountyId, wallet_address, caption, image_hash, per
 
         const metadataPointer = `dbc:${bountyId}:${Date.now()}`;
         const {tokenId, serialNumber} = await mintCertificateNFT(
-            wallet_address, metadataPointer
+            hederaAccountID, metadataPointer
         );
 
         await logToHCS({
             bountyId,
             wallet_address,
+            hederaAccountID,
             tokenId, 
             serialNumber,
             category,
@@ -28,7 +29,7 @@ async function processVerdict(bountyId, wallet_address, caption, image_hash, per
             timestamp: Date.now()
         })
 
-        await sendPayout(wallet_address, bounty.payout_amount)
+        await sendPayout(hederaAccountID, bounty.payout_amount)
 
         db.prepare(`
             UPDATE bounties SET slots_filled = slots_filled + 1 WHERE id = ?

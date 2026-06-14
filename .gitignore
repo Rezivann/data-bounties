@@ -13,6 +13,9 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+/ml-service/google-credentials.json
+
+backend/uploads/*
 
 # builds
 dist/

@@ -1,0 +1,114 @@
+.board {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.board-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #4c1d95;
+  margin-bottom: 1.5rem;
+}
+
+.board-status {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #6b21a8;
+  font-size: 1rem;
+}
+
+.board-error {
+  color: #b91c1c;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.bounty-card {
+  background: #ffffff;
+  border: 1px solid #e9d5ff;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bounty-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15);
+}
+
+.bounty-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bounty-category {
+  background: #f3e8ff;
+  color: #6b21a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.bounty-payout {
+  font-weight: 700;
+  color: #7c3aed;
+  font-size: 0.95rem;
+}
+
+.bounty-prompt {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1f1133;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.bounty-progress-track {
+  width: 100%;
+  height: 8px;
+  background: #f3e8ff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bounty-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.bounty-progress-label {
+  font-size: 0.8rem;
+  color: #8b5cf6;
+}
+
+.bounty-button {
+  margin-top: 0.5rem;
+  background: #7c3aed;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bounty-button:hover {
+  background: #6d28d9;
+}

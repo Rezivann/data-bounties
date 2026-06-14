@@ -1,6 +1,8 @@
-const { AccountCreateTransaction, Hbar } = require("@hashgraph/sdk");
+const { AccountCreateTransaction, Hbar, TokenAssociateTransaction, PrivateKey } = require("@hashgraph/sdk");
 const { client, operatorKey } = require("../hedera");
 const db = require("../database");
+
+const TOKEN_ID = process.env.HEDERA_TOKEN_ID;
 
 async function getOrCreateHederaAccount(privyWalletAddress) {
     try {
@@ -8,11 +10,22 @@ async function getOrCreateHederaAccount(privyWalletAddress) {
         if (existingUser) {
             return existingUser.hedera_account_id;
         }
-        const newAccount = await new AccountCreateTransaction().setKey(operatorKey.publicKey).setInitialBalance(new Hbar(0)).freezeWith(client).sign(operatorKey);
+        const newAccountKey = PrivateKey.generateED25519();
+        const newAccount = await new AccountCreateTransaction().setKey(newAccountKey.publicKey).setInitialBalance(new Hbar(100)).freezeWith(client).sign(operatorKey);
         const response = await newAccount.execute(client);
         const receipt = await response.getReceipt(client);
         const accountId = receipt.accountId.toString();
-        const result = db.prepare(`INSERT INTO users (wallet_address, hedera_account_id, created_at) VALUES(?, ?, ?)`).run(privyWalletAddress, accountId, Date.now());
+
+        const associateTx = await new TokenAssociateTransaction()
+            .setAccountId(accountId)
+            .setTokenIds([TOKEN_ID])
+            .freezeWith(client)
+            .sign(newAccountKey);
+        
+        await associateTx.execute(client);
+
+
+        db.prepare(`INSERT INTO users (wallet_address, hedera_account_id, created_at) VALUES(?, ?, ?)`).run(privyWalletAddress, accountId, Date.now());
         return accountId;
     }
     catch (err) {

@@ -1,6 +1,6 @@
 const sqlite3 = require('better-sqlite3');
-
-const db = new sqlite3("databounties.db");
+const dbPath = process.env.DB_PATH || path.join(__dirname, "databounties.db");
+const db = new sqlite3("databounties.db")(dbPath);
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS bounties (
