@@ -180,6 +180,6 @@ uvicorn main:app --reload --port 8000
 
 ## AI Attribution
 
-In the interest of transparency: AI coding assistants were used throughout this project's development — for debugging deployment issues (Railway/Vercel configuration, dependency conflicts, build errors), guiding our development of frontend and backend code, and drafting this README itself. All AI-suggested code was reviewed, tested, and adjusted by the team before being included. The core architecture, integration design (Hedera + Privy + Google Cloud), and product concept are our own.
+In the interest of transparency: AI coding assistants were used throughout this project's development — for debugging deployment issues (Railway/Vercel configuration, dependency conflicts, build errors), guiding our development of frontend and backend code, and drafting this README itself. All AI-suggested code was reviewed, tested, and adjusted by the team before being included.
 
 ---
